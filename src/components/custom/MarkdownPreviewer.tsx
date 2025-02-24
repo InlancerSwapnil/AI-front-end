@@ -3,8 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface Message {
   id: number;
-  content: string;
-  user: number;
+  content?: string;
+  user?: number;
   ai_response: string | null;
   type: boolean;
 }

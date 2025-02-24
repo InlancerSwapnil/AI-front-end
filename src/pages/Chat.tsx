@@ -3,14 +3,14 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router";
 import { post } from "@/utils/axiosWrapper";
-import { setChatPending, setIsChated } from "@/redux/actions";
+import { setChatPending } from "@/redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useEffect, useState } from "react";
 
 interface Message {
   id: number;
-  content: string;
-  user: number;
+  content?: string;
+  user?: number;
   ai_response: string | null;
   type: boolean;
 }
@@ -26,11 +26,16 @@ interface Response {
 interface ChatState {
   chat: {
     isChated: boolean;
+    lastAiChatID: number;
   };
 }
 
 const Chat: React.FC = () => {
   const chated = useSelector((state: ChatState) => state.chat.isChated);
+  const lastAiChatID = useSelector(
+    (state: ChatState) => state.chat.lastAiChatID
+  );
+
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -65,11 +70,13 @@ const Chat: React.FC = () => {
   });
 
   useEffect(() => {
-    if (chated) {
+    if (chated && lastAiChatID) {
       dispatch(setChatPending(true));
 
       const eventSource = new EventSource(
-        `http://192.168.0.42:8040/d/response-stream`
+        `http://192.168.0.42:8040/d/response-stream?chat_id=${String(
+          params.ID
+        )}&last_message=${lastAiChatID}`
       );
 
       eventSource.onmessage = (event) => {
@@ -123,11 +130,10 @@ const Chat: React.FC = () => {
 
       return () => {
         eventSource.close();
-        dispatch(setIsChated(false));
         dispatch(setChatPending(false));
       };
     }
-  }, [params, dispatch, chated]);
+  }, [params, dispatch, chated, lastAiChatID]);
 
   if (isPending && !chated) {
     return <span>Loading...</span>;

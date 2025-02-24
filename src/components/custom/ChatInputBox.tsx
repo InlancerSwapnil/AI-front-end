@@ -14,7 +14,13 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { post } from "@/utils/axiosWrapper";
 import { useMutation } from "@tanstack/react-query";
-import { setChatPending, setNewChat, setIsChated } from "@/redux/actions";
+import {
+  setChatPending,
+  setNewChat,
+  setIsChated,
+  setLastAiChatID,
+  setLastUserChatID,
+} from "@/redux/actions";
 import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -33,6 +39,10 @@ type FormSchemaType = z.infer<typeof formSchema>;
 
 interface DataObject {
   chat_id: number;
+  chat_title: string;
+  created_at: number;
+  user_msg_id: number;
+  ai_res_id: number;
 }
 
 interface Response {
@@ -68,11 +78,13 @@ export const ChatInputBox = () => {
     try {
       const response = await post<Response>("m/chat-message", formData);
       if (response.success == 1) {
-        if (Number(params.ID) != response.data.chat_id) {
+        dispatch(setLastAiChatID(response.data.ai_res_id));
+        dispatch(setLastUserChatID(response.data.user_msg_id));
+        if (Number(params.ID) == response.data.chat_id) {
+          dispatch(setNewChat(false));
+        } else {
           navigate(`/chat/${response.data.chat_id}`);
           dispatch(setNewChat(true));
-        } else {
-          dispatch(setNewChat(false));
         }
         form.reset({
           message: "",

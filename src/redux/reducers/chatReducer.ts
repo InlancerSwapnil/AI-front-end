@@ -4,6 +4,8 @@ import {
   setChatPending,
   setNewChat,
   setIsChated,
+  setLastAiChatID,
+  setLastUserChatID,
 } from "@/redux/actions";
 
 interface AuthState {
@@ -11,6 +13,8 @@ interface AuthState {
   chatPending: boolean;
   isNewChat?: boolean;
   isChated: boolean;
+  lastAiChatID?: number;
+  lastUserChatID?: number;
 }
 
 const initialState: AuthState = {
@@ -32,5 +36,11 @@ export const chatReducer = createReducer(initialState, (builder) => {
   });
   builder.addCase(setIsChated, (state, action) => {
     state.isChated = action.payload;
+  });
+  builder.addCase(setLastAiChatID, (state, action) => {
+    state.lastAiChatID = action.payload;
+  });
+  builder.addCase(setLastUserChatID, (state, action) => {
+    state.lastUserChatID = action.payload;
   });
 });

@@ -96,7 +96,7 @@ export const ChatSideMenu: React.FC = () => {
     }
   }
 
-  const { isLoading, isError, data, error, refetch } = useQuery({
+  const { isLoading, data, refetch } = useQuery({
     queryKey: ["chatlist"],
     queryFn: chatListFn,
   });
@@ -134,12 +134,6 @@ export const ChatSideMenu: React.FC = () => {
       </div>
       <ScrollArea className="flex-1 w-full">
         <div className="py-1 w-full">
-          {isError && (
-            <p className="text-red-500">
-              Error:{" "}
-              {error instanceof Error ? error.message : "Something went wrong!"}
-            </p>
-          )}
           {isLoading ? (
             <ChatSkeleton />
           ) : (
